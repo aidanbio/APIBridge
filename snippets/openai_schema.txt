@@ -1,0 +1,12 @@
+{
+  "domain": "worldtimeapi.org",
+  "method": "get",
+  "path": "/api/timezone/{region}/{city}",
+  "operation": "GetTimezoneInformation",
+  "operation_hash": "ce44983ed1e6b87fff4f3eab8c5bad0d13a2fcc2",
+  "is_consequential": false,
+  "params": {
+    "region": "Asia",
+    "city": "Seoul"
+  }
+}

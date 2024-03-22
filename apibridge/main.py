@@ -3,7 +3,10 @@ import requests
 import xmltodict
 from fastapi import FastAPI
 from enum import auto, Enum
+import logging
+import uvicorn
 
+import ssl
 from typing import Union
 from pydantic import BaseModel
 
@@ -54,9 +57,12 @@ END_POINTS = {
     ServiceName.AstroSpace: 'http://apis.data.go.kr/B090041/openapi/service/LrsrCldInfoService'
 }
 
-
 app = FastAPI()
 
+###
+# Logger
+logging.config.fileConfig('../config/logging.conf')
+logger = logging.getLogger('apibridge')
 
 @app.get(f"/{ServiceName.AstroSpace}")
 async def root_as():
@@ -69,9 +75,12 @@ async def getLunCalInfo(syear: str, smonth: str, sday: str):
     service_key = SERVICE_KEYS[ServiceName.AstroSpace]
     url = (f"{endpoint}/getLunCalInfo?solYear={syear}&solMonth={smonth}&solDay={sday}&ServiceKey={service_key}")
     data = xmltodict.parse(requests.get(url).content)
+    logger.debug(f"items: {data['response']['body']['items']['item']}")
     lyear = data['response']['body']['items']['item']['lunYear']
     lmonth = data['response']['body']['items']['item']['lunMonth']
     lday = data['response']['body']['items']['item']['lunDay']
+    result = {"lunYear": lyear, "lunMonth": lmonth, "lunDay": lday}
+    logger.debug(f"result: {result}")
     return {"lunYear": lyear, "lunMonth": lmonth, "lunDay": lday}
 
 # class Item(BaseModel):
@@ -104,6 +113,9 @@ async def getLunCalInfo(syear: str, smonth: str, sday: str):
 # def delete_item(item_id: int):
 #     return {"deleted": item_id}
 
-
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     uvicorn.run(app,
+#                 host='0.0.0.0',
+#                 port=8000,
+#                 ssl_keyfile='../config/ssl/private.key',
+#                 ssl_certfile='../config/ssl/cert_with_chain.crt')
